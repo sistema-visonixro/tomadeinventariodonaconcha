@@ -16,9 +16,10 @@ interface ConteoItem extends Producto {
 interface Props {
   usuario: UsuarioSesion;
   onLogout: () => void;
+  onHome: () => void;
 }
 
-export default function TomaInventario({ usuario, onLogout }: Props) {
+export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
   const [productos, setProductos] = useState<ConteoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -47,11 +48,18 @@ export default function TomaInventario({ usuario, onLogout }: Props) {
         if (e2) throw e2;
 
         // Calcular entradas - salidas por producto
+        // Tipos que reducen stock: salida, venta, consumo, ajuste_negativo (legacy)
+        const TIPOS_SALIDA = new Set([
+          "salida",
+          "venta",
+          "consumo",
+          "ajuste_negativo",
+        ]);
         const movMap: Record<string, number> = {};
         for (const m of movs || []) {
           if (!m.producto_id) continue;
           const q = Number(m.cantidad) || 0;
-          const esSalida = ["salida", "venta", "consumo"].includes(m.tipo);
+          const esSalida = TIPOS_SALIDA.has(m.tipo);
           movMap[m.producto_id] =
             (movMap[m.producto_id] || 0) + (esSalida ? -q : q);
         }
@@ -81,12 +89,11 @@ export default function TomaInventario({ usuario, onLogout }: Props) {
 
   const actualizarConteo = (valor: number) => {
     setProductos((prev) =>
-      prev.map((p, i) => (i === indice ? { ...p, conteo: valor } : p))
+      prev.map((p, i) => (i === indice ? { ...p, conteo: valor } : p)),
     );
   };
 
-  const incrementar = () =>
-    actualizarConteo((productoActual?.conteo ?? 0) + 1);
+  const incrementar = () => actualizarConteo((productoActual?.conteo ?? 0) + 1);
 
   const decrementar = () =>
     actualizarConteo(Math.max(0, (productoActual?.conteo ?? 0) - 1));
@@ -133,6 +140,7 @@ export default function TomaInventario({ usuario, onLogout }: Props) {
           setProductos((prev) => prev.map((p) => ({ ...p, conteo: 0 })));
         }}
         onLogout={onLogout}
+        onHome={onHome}
         onVolver={() => {
           setTerminado(false);
           setIndice(productos.length - 1);
@@ -255,7 +263,9 @@ export default function TomaInventario({ usuario, onLogout }: Props) {
 
         {/* Input manual */}
         <div>
-          <p className="input-manual-label">O escribe la cantidad directamente</p>
+          <p className="input-manual-label">
+            O escribe la cantidad directamente
+          </p>
           <div className="input-manual-row" style={{ marginTop: 6 }}>
             <input
               type="number"
