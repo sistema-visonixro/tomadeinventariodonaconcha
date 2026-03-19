@@ -823,3 +823,125 @@ body {
     print-color-adjust: exact;
   }
 }
+
+/* ─── Movimiento modal ───────────────────────────────────────────────────────── */
+.mov-modal-card {
+  max-height: 90dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.mov-tipo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.mov-tipo-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  border: 2px solid var(--gray-200);
+  background: var(--gray-100);
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.mov-tipo-btn:active {
+  transform: scale(0.97);
+}
+
+.mov-tipo-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gray-700);
+}
+
+.mov-tipo-desc {
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+.mov-tipo-active-entrada {
+  border-color: var(--green);
+  background: #dcfce7;
+}
+
+.mov-tipo-active-entrada .mov-tipo-label {
+  color: var(--green);
+}
+
+.mov-tipo-active-salida {
+  border-color: var(--red);
+  background: #fee2e2;
+}
+
+.mov-tipo-active-salida .mov-tipo-label {
+  color: var(--red);
+}
+
+.mov-prod-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 2px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.mov-prod-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+
+.mov-prod-item:hover {
+  background: var(--gray-100);
+}
+
+.mov-prod-selected {
+  background: #eff6ff;
+  border: 1px solid var(--blue-lt);
+}
+
+.mov-prod-nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  flex: 1;
+  text-align: left;
+}
+
+.mov-prod-stock {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+/* ─── Home btn movimiento ────────────────────────────────────────────────────── */
+.home-btn-mov {
+  background: linear-gradient(135deg, #065f46, #059669);
+  color: #fff;
+}
+

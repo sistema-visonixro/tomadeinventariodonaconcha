@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { UsuarioSesion } from "./Login";
+import MovimientoModal from "./MovimientoModal";
 
 interface Props {
   usuario: UsuarioSesion;
@@ -13,6 +15,8 @@ export default function Home({
   onHistorial,
   onLogout,
 }: Props) {
+  const [mostrarMovimiento, setMostrarMovimiento] = useState(false);
+
   return (
     <div className="screen">
       {/* Header */}
@@ -46,6 +50,20 @@ export default function Home({
           <span className="home-btn-arrow">›</span>
         </button>
 
+        <button
+          className="home-btn home-btn-mov"
+          onClick={() => setMostrarMovimiento(true)}
+        >
+          <span className="home-btn-icon">🔄</span>
+          <div className="home-btn-text">
+            <span className="home-btn-title">Registrar movimiento</span>
+            <span className="home-btn-desc">
+              Entrada o salida de producto
+            </span>
+          </div>
+          <span className="home-btn-arrow">›</span>
+        </button>
+
         <button className="home-btn home-btn-secondary" onClick={onHistorial}>
           <span className="home-btn-icon">🗂️</span>
           <div className="home-btn-text">
@@ -57,6 +75,15 @@ export default function Home({
           <span className="home-btn-arrow">›</span>
         </button>
       </div>
+
+      {/* Modal de movimiento */}
+      {mostrarMovimiento && (
+        <MovimientoModal
+          usuario={usuario}
+          onClose={() => setMostrarMovimiento(false)}
+        />
+      )}
     </div>
   );
 }
+

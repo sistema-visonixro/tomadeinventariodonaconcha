@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "./supabaseClient";
 import type { UsuarioSesion } from "./Login";
 import Resumen from "./Resumen";
@@ -26,6 +26,19 @@ export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
   const [indice, setIndice] = useState(0);
   const [terminado, setTerminado] = useState(false);
   const [toast, setToast] = useState("");
+  const progressLoaded = useRef(false);
+
+  const STORAGE_KEY = `inv_toma_prog_${usuario.id}`;
+
+  // Guarda avance en localStorage cada vez que cambia productos o indice
+  useEffect(() => {
+    if (!progressLoaded.current || productos.length === 0) return;
+    const conteos: Record<string, number> = {};
+    for (const p of productos) conteos[p.id] = p.conteo;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ conteos, indice }));
+  }, [productos, indice]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const clearProgress = () => localStorage.removeItem(STORAGE_KEY);
 
   // Cargar productos tipo bebida + calcular stock desde movimientos
   useEffect(() => {
@@ -71,6 +84,24 @@ export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
           conteo: 0,
         }));
 
+        // Restaurar avance guardado si existe
+        try {
+          const saved = localStorage.getItem(`inv_toma_prog_${usuario.id}`);
+          if (saved) {
+            const { conteos, indice: savedIndice } = JSON.parse(saved) as {
+              conteos: Record<string, number>;
+              indice: number;
+            };
+            for (const item of items) {
+              if (conteos[item.id] !== undefined) item.conteo = conteos[item.id];
+            }
+            setIndice(Math.min(savedIndice, items.length - 1));
+          }
+        } catch {
+          // ignorar errores de localStorage
+        }
+
+        progressLoaded.current = true;
         setProductos(items);
       } catch (err: any) {
         setErrorMsg(err?.message || "Error cargando productos.");
@@ -102,6 +133,7 @@ export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
     if (indice < productos.length - 1) {
       setIndice((i) => i + 1);
     } else {
+      clearProgress(); // conteo completo → ya no necesitamos el borrador
       setTerminado(true);
     }
   };
@@ -135,6 +167,7 @@ export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
         productos={productos}
         usuario={usuario}
         onReiniciar={() => {
+          clearProgress();
           setTerminado(false);
           setIndice(0);
           setProductos((prev) => prev.map((p) => ({ ...p, conteo: 0 })));
@@ -190,7 +223,7 @@ export default function TomaInventario({ usuario, onLogout, onHome }: Props) {
     <div className="screen">
       {/* Header */}
       <div className="header">
-        <button className="icon-btn" onClick={onLogout} title="Salir">
+        <button className="icon-btn" onClick={onHome} title="Volver al inicio">
           ←
         </button>
         <div style={{ flex: 1 }}>
